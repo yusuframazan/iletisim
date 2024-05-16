@@ -1,72 +1,53 @@
-<!DOCTYPE html>
-<html lang="tr">
+// Gerekli Firebase SDK'larını içe aktarın
+import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İletişim Formu Verileri</title>
-    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js"></script>
+// Firebase yapılandırma
+const firebaseConfig = {
+  apiKey: "AIzaSyAmNW_Tcu9tp00QVbh6ZQX1v0bPUQExw6s",
+  authDomain: "iletisim-902bb.firebaseapp.com",
+  databaseURL: "https://iletisim-902bb-default-rtdb.europe-west1.firebaseatabase.app",
+  projectId: "iletisim-902bb",
+  storageBucket: "iletisim-902bb.appspot.com",
+  messagingSenderId: "1088047995375",
+  appId: "1:1088047995375:web:eb6fdac69c506f1c7b3e1a",
+  measurementId: "G-3FKYYMHDJX"
+};
 
-    <!-- Add Firebase products that you want to use -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js"></script>
+// Firebase'i başlat
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-    <script>
-        // Firebase veritabanı URL'si
-        const databaseURL = "https://iletisim-902bb-default-rtdb.europe-west1.firebaseatabase.app";
-
-        // Firebase yapılandırma bilgileri
-        const firebaseConfig = {
-            databaseURL: databaseURL
-        };
-
-        // Firebase'i başlat
-        const app = firebase.initializeApp(firebaseConfig);
-    </script>
-</head>
-
-<body>
-    <h1>İletişim Formu Verileri</h1>
-
-    <div id="contact-data"></div>
-
-    <script>
-        // Firebase veritabanı referansı
-        const database = firebase.database();
-
-        // "contact" düğümündeki verileri dinle
-        database.ref('contact').on('value', (snapshot) => {
-            const data = snapshot.val();
-            // Verileri sayfada göster
-            renderContactData(data);
+// İletişim formu verilerini gösterme işlevi
+function renderContactData(data) {
+    const contactDataDiv = document.getElementById('contact-data');
+    contactDataDiv.innerHTML = ''; // Önceki verileri temizle
+    // Veri var mı kontrol et
+    if (data) {
+        // Her iletişim girişi için döngü oluştur
+        Object.keys(data).forEach((key) => {
+            const contact = data[key];
+            // İletişim bilgilerini göstermek için HTML elementleri oluştur
+            const contactDiv = document.createElement('div');
+            contactDiv.innerHTML = `
+                <p><strong>İsim:</strong> ${contact.name}</p>
+                <p><strong>E-posta:</strong> ${contact.email}</p>
+                <p><strong>Konu:</strong> ${contact.subject}</p>
+                <p><strong>Mesaj:</strong> ${contact.message}</p>
+                <hr>
+            `;
+            // İletişim bilgilerini contactDataDiv'e ekle
+            contactDataDiv.appendChild(contactDiv);
         });
+    } else {
+        // Veri yoksa bir mesaj göster
+        contactDataDiv.innerHTML = '<p>İletişim verisi mevcut değil.</p>';
+    }
+}
 
-        function renderContactData(data) {
-            const contactDataDiv = document.getElementById('contact-data');
-            contactDataDiv.innerHTML = ''; // Önceki verileri temizle
-            // Veri var mı kontrol et
-            if (data) {
-                // Her iletişim girişi için döngü oluştur
-                Object.keys(data).forEach((key) => {
-                    const contact = data[key];
-                    // İletişim bilgilerini göstermek için HTML elementleri oluştur
-                    const contactDiv = document.createElement('div');
-                    contactDiv.innerHTML = `
-                        <p><strong>İsim:</strong> ${contact.name}</p>
-                        <p><strong>E-posta:</strong> ${contact.email}</p>
-                        <p><strong>Konu:</strong> ${contact.subject}</p>
-                        <p><strong>Mesaj:</strong> ${contact.message}</p>
-                        <hr>
-                    `;
-                    // İletişim bilgilerini contactDataDiv'e ekle
-                    contactDataDiv.appendChild(contactDiv);
-                });
-            } else {
-                // Veri yoksa bir mesaj göster
-                contactDataDiv.innerHTML = '<p>İletişim verisi mevcut değil.</p>';
-            }
-        }
-    </script>
-</body>
-
-</html>
+// "contact" düğümündeki verileri dinle
+database.ref('contact').on('value', (snapshot) => {
+    const data = snapshot.val();
+    // Verileri sayfada göster
+    renderContactData(data);
+});
