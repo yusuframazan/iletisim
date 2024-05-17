@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İletişim Formu Verileri</title>
+    <title>İletişim Formu Yönetimi</title>
     <!-- Firebase CDN'i -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAmNW_Tcu9tp00QVbh6ZQX1v0bPUQExw6s",
@@ -20,141 +20,136 @@
             measurementId: "G-3FKYYMHDJX"
         };
 
-        // Firebase'i başlat
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const contactRef = ref(db, 'contact');
 
         // İletişim formu verilerini gösterme işlevi
         function renderContactData(data) {
-            const contactDataDiv = document.getElementById('contact-data');
-            contactDataDiv.innerHTML = ''; // Önceki verileri temizle
+            const contactTable = document.getElementById('contact-table-body');
+            contactTable.innerHTML = ''; // Önceki verileri temizle
 
-            // Veri var mı kontrol et
             if (data) {
-                // Her iletişim girişi için döngü oluştur
                 Object.keys(data).forEach((key) => {
                     const contact = data[key];
-                    // İletişim bilgilerini göstermek için HTML elementleri oluştur
-                    const contactDiv = document.createElement('div');
-                    contactDiv.innerHTML = `
-                        <p><strong>İsim:</strong> ${contact.name}</p>
-                        <p><strong>E-posta:</strong> ${contact.email}</p>
-                        <p><strong>Konu:</strong> ${contact.subject}</p>
-                        <p><strong>Mesaj:</strong> ${contact.message}</p>
-                        <hr>
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${contact.name}</td>
+                        <td>${contact.email}</td>
+                        <td>${contact.subject}</td>
+                        <td>${contact.message}</td>
+                        <td><button onclick="replyToContact('${key}')">Yanıtla</button></td>
+                        <td><button onclick="updateContactStatus('${key}', 'Yanıtlandı')">Yanıtlandı</button></td>
                     `;
-                    // İletişim bilgilerini contactDataDiv'e ekle
-                    contactDataDiv.appendChild(contactDiv);
+                    contactTable.appendChild(row);
                 });
             } else {
-                // Veri yoksa bir mesaj göster
-                contactDataDiv.innerHTML = '<p>İletişim verisi mevcut değil.</p>';
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="6">İletişim verisi mevcut değil.</td>';
+                contactTable.appendChild(row);
             }
         }
 
-        // "contact" düğümündeki verileri dinle
+        window.replyToContact = function(id) {
+            const email = prompt('Yanıt e-postasını girin:');
+            if (email) {
+                // Burada e-posta yanıtlama işlemini gerçekleştirebilirsiniz
+                alert('Yanıt e-postası: ' + email);
+            }
+        }
+
+        window.updateContactStatus = function(id, status) {
+            const contactStatusRef = ref(db, `contact/${id}/status`);
+            update(contactStatusRef, status);
+            alert('Durum güncellendi: ' + status);
+        }
+
         onValue(contactRef, (snapshot) => {
             const data = snapshot.val();
-            // Verileri sayfada göster
             renderContactData(data);
         });
     </script>
     <style>
-        /* Genel stil tanımlamalarını burada yapabilirsiniz */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5; /* Açık gri arka plan */
+            background-color: #f5f5f5;
         }
-        
+
         header {
-            background-color: #4caf50; /* Yeşil tonları */
-            color: #fff; /* Beyaz metin */
+            background-color: #4caf50;
+            color: #fff;
             padding: 10px 0;
+            text-align: center;
         }
-        
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-        }
-        
-        .logo h1 {
-            margin: 0;
-        }
-        
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-        }
-        
-        nav ul li {
-            display: inline;
-            margin-right: 20px;
-        }
-        
-        nav ul li a {
-            color: #fff; /* Beyaz metin */
-            text-decoration: none;
-        }
-        
+
         main {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #fff; /* Beyaz arka plan */
+            background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        
-        .contact-info {
-            margin-bottom: 20px;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        
-        .contact-info h2 {
-            color: #4caf50; /* Yeşil tonları */
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
         }
-        
-        .contact-info p {
-            color: #333; /* Koyu gri metin */
+
+        th {
+            background-color: #4caf50;
+            color: white;
         }
-        
-        .contact-data {
-            margin-top: 20px;
+
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
-        
-        .contact-data p {
-            margin-bottom: 10px;
+
+        button:hover {
+            background-color: #45a049;
+            color: white;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
 <header>
-    <div class="navbar">
-        <div class="logo">
-            <h1>İletişim Formu Verileri</h1>
-        </div>
-    </div>
+    <h1>İletişim Formu Yönetimi</h1>
 </header>
 
 <main>
-    <div class="contact-info">
-        <h2>İletişim Bilgileri</h2>
-        <p>Bizimle iletişime geçmek için aşağıdaki bilgileri kullanabilirsiniz:</p>
-        <ul>
-            <li>Telefon: 123-456-7890</li>
-            <li>E-posta: info@orneksite.com</li>
-            <li>Adres: Örnek Cad. No: 123, İstanbul, Türkiye</li>
-        </ul>
-    </div>
-
-    <div class="contact-data" id="contact-data">
-        <!-- İletişim formu verileri buraya eklenecek -->
-    </div>
+    <h2>Gelen İletişim Formları</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>İsim</th>
+                <th>E-posta</th>
+                <th>Konu</th>
+                <th>Mesaj</th>
+                <th>Yanıtla</th>
+                <th>Durum</th>
+            </tr>
+        </thead>
+        <tbody id="contact-table-body">
+            <!-- İletişim formu verileri buraya eklenecek -->
+        </tbody>
+    </table>
 </main>
 </body>
 </html>
