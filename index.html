@@ -126,30 +126,72 @@
             background-color: #ccc;
             cursor: not-allowed;
         }
+
+        .login-container {
+            max-width: 300px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
     </style>
+    <script>
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username === 'yusuf' && password === '12345') {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } else {
+                alert('Kullanıcı adı veya şifre yanlış');
+            }
+        }
+    </script>
 </head>
 <body>
-<header>
-    <h1>İletişim Formu Yönetimi</h1>
-</header>
+<div id="login-form" class="login-container">
+    <h2>Giriş Yap</h2>
+    <form onsubmit="login(event)">
+        <input type="text" id="username" placeholder="Kullanıcı Adı" required>
+        <input type="password" id="password" placeholder="Şifre" required>
+        <button type="submit">Giriş Yap</button>
+    </form>
+</div>
 
-<main>
-    <h2>Gelen İletişim Formları</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>İsim</th>
-                <th>E-posta</th>
-                <th>Konu</th>
-                <th>Mesaj</th>
-                <th>Yanıtla</th>
-                <th>Durum</th>
-            </tr>
-        </thead>
-        <tbody id="contact-table-body">
-            <!-- İletişim formu verileri buraya eklenecek -->
-        </tbody>
-    </table>
-</main>
+<div id="content" style="display: none;">
+    <header>
+        <h1>İletişim Formu Yönetimi</h1>
+    </header>
+
+    <main>
+        <h2>Gelen İletişim Formları</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>İsim</th>
+                    <th>E-posta</th>
+                    <th>Konu</th>
+                    <th>Mesaj</th>
+                    <th>Yanıtla</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+            <tbody id="contact-table-body">
+                <!-- İletişim formu verileri buraya eklenecek -->
+            </tbody>
+        </table>
+    </main>
+</div>
 </body>
 </html>
